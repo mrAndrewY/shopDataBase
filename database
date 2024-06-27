@@ -1,0 +1,69 @@
+create schema shop;
+
+
+CREATE TABLE shop.category (
+  id_category serial primary key,
+  name_category varchar (50) not null
+);
+--goods_description
+create table shop.goods_description 
+(goods_id serial primary key,  id_category int references  shop.category (id_category), art_shop varchar(8), category varchar(30), type varchar(30),
+model_manufacturer varchar(30), art_manufacturer varchar(30), name_manufacturer varchar(30) , 
+country_of_origin varchar(15), trade_mark varchar(15), common_description varchar(100),
+material varchar(50), weight_kq real, size_heigt_meters real, size_wide_meters real, size_deep_meters real, color varchar(20)
+);
+
+create table shop.price_owner
+(goods_id int references shop.goods_description, price money);
+
+create table shop.sellers_price
+(goods_id int references shop.goods_description, price money);
+
+create table shop.attributes
+(atrribute_id serial primary key, attribute_name varchar(40));
+
+create table shop.attributes_goods
+(id serial primary key, id_atribute int references shop.attributes(atrribute_id), id_goods int references shop.goods_description(goods_id));
+
+create table shop.client 
+(client_id serial primary key, client_first_name varchar (40) ,  client_last_name varchar(40), 
+client_mob_phone1 varchar(12), client_mob_phone2 varchar(12), client_mail varchar(40), delivery_address varchar(200)); 
+
+create table shop.employee
+(
+employee_id serial primary key, employee_first_name varchar(40), employee_last_name varchar(40), employee_email varchar(40), employee_phone varchar(14)
+);
+
+create table shop.order 
+(order_id serial primary key, cash_payment boolean, client_id int references shop.client(client_id),
+employee_id int references shop.employee(employee_id),
+client_notes varchar(200), need_delivery boolean, goods_value money, delivery_price money, total money
+);
+
+create table shop.step 
+(
+step_id serial primary key, step_name varchar(40)
+);
+
+insert into shop.step
+(step_name) values ('payment');
+insert into shop.step
+(step_name) values ('transporting');
+insert into shop.step
+(step_name) values ('delivery');
+
+
+create table shop.step_order
+(
+step_order_id serial primary key, step_id  int references shop.step(step_id), 
+order_id int references shop.order (order_id),  date_begin date , date_end date
+);
+
+create table shop.order_goods 
+(order_goods_id serial primary key,order_id int references shop.order, goods_id int references shop.goods_description(goods_id));
+
+
+
+
+
+drop schema shop cascade ;
