@@ -5,74 +5,79 @@ create table if not exists shop.category (
     name_category varchar(50) not null unique
 );
 
-create table if not exists shop.goods_description (
+create table if not exists shop.goods (
     id serial primary key,
-    id_category int references shop.category(id),
-    art_shop varchar(8),
-    category varchar(30),
-    type varchar(30),
-    model_manufacturer varchar(30),
-    art_manufacturer varchar(30),
-    name_manufacturer varchar(30),
+    category_id int references shop.category,
+    article varchar(8),
+    model varchar(30),
+    article_manufacture varchar(30),
+    name_good varchar(30),
     country_of_origin varchar(15),
     trade_mark varchar(15),
-    common_description varchar(100),
+    description varchar(100),
     material varchar(50),
-    weight_kq real,
-    size_height_meters real,
-    size_wide_meters real,
-    size_deep_meters real,
+    weight real,
+    height real,
+    width real,
+    len real,
     color varchar(20)
 );
 
 create table if not exists shop.price_owner (
     id serial primary key,
-    goods_id int references shop.goods_description(id),
+    goods_id int references shop.goods,
     price money
 );
 
-create table if not exists shop.sellers_price (
+create table if not exists shop.price_seller (
     id serial primary key,
-    goods_id int references shop.goods_description(id),
+    goods_id int references shop.goods,
     price money
 );
 
-create table if not exists shop.attributes (
+create table if not exists shop.attribute (
     id serial primary key,
-    attribute_name varchar(40)
+    name_attribute varchar(40)
 );
 
-create table if not exists shop.attributes_goods (
+create table if not exists shop.category_attribute (
     id serial primary key,
-    id_attribute int references shop.attributes(id),
-    id_goods int references shop.goods_description(id)
+    category_id int references shop.category,
+    attribute_id int references shop.attribute
+);
+
+create table if not exists shop.goods_attribute (
+    id serial primary key,
+    attribute_id int references shop.attribute,
+    goods_id int references shop.goods,
+    value_attribute varchar(50)
 );
 
 create table if not exists shop.client (
     id serial primary key,
-    client_first_name varchar(40) not null,
-    client_last_name varchar(40) not null,
-    client_mob_phone1 varchar(12) not null,
-    client_mob_phone2 varchar(12),
-    client_mail varchar(40) not null,
-    delivery_address varchar(200),
-    unique (client_first_name, client_last_name)
+    firstname varchar(40) not null,
+    lastname varchar(40) not null,
+    phone varchar(12) not null,
+    phone_extra varchar(12),
+    email varchar(40) not null,
+    address varchar(200),
+    unique (firstname, lastname)
 );
 
 create table if not exists shop.employee (
     id serial primary key,
-    employee_first_name varchar(40) not null,
-    employee_last_name varchar(40) not null,
-    employee_email varchar(40) not null,
-    employee_phone varchar(14) not null,
-    unique (employee_first_name, employee_last_name)
+    firstname varchar(40) not null,
+    lastname varchar(40) not null,
+    email varchar(40) not null,
+    phone varchar(14) not null,
+    unique (firstname, lastname)
 );
 
 create table if not exists shop.order (
     id serial primary key,
     cash_payment boolean,
-    client_id int references shop.client(id),
-    employee_id int references shop.employee(id),
+    client_id int references shop.client,
+    employee_id int references shop.employee,
     client_notes varchar(200),
     need_delivery boolean,
     goods_value money,
@@ -82,25 +87,40 @@ create table if not exists shop.order (
 
 create table if not exists shop.step (
     id serial primary key,
-    step_name varchar(40) not null
+    description varchar(40) not null
 );
 
-insert into shop.step(step_name) values ('payment');
-insert into shop.step(step_name) values ('transporting');
-insert into shop.step(step_name) values ('delivery');
+insert into shop.step values (default, 'payment');
+insert into shop.step values (default, 'transporting');
+insert into shop.step values (default, 'delivery');
 
 create table if not exists shop.step_order (
     id serial primary key,
-    step_id int references shop.step(id),
-    order_id int references shop.order(id),
+    step_id int references shop.step,
+    order_id int references shop.order,
     date_begin date,
     date_end date
 );
 
-create table if not exists shop.order_goods (
+create table if not exists shop.goods_order (
     id serial primary key,
-    order_id int references shop.order(id),
-    goods_id int references shop.goods_description(id)
+    order_id int references shop.order,
+    goods_id int references shop.goods
+);
+
+create table if not exists shop.goods_count (
+    id serial primary key,
+    goods_id int references shop.goods,
+    sold int,
+    reserved int,
+    available int
+);
+
+create table if not exists shop.client_basket (
+    id serial primary key,
+    client_id int references shop.client,
+    goods_id int references shop.goods,
+    count int
 );
 
 drop schema shop cascade;
