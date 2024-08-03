@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-create-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target:
+spec:
+  ingressClassName: nginx
+  rules:
+    - host:
+      http:
+        paths:
+          - pathType: Prefix
+            path: /client/create
+            backend:
+              service:
+                name: client-create-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /client/delete
+            backend:
+              service:
+                name: client-delete-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /client/get
+            backend:
+              service:
+                name: client-get-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /client/update
+            backend:
+              service:
+                name: client-update-service
+                port:
+                  number: 80

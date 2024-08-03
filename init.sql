@@ -127,5 +127,3 @@ create table if not exists shop.client_basket (
     goods_id int references shop.goods,
     count int
 );
-
-drop schema shop cascade;
