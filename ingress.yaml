@@ -1,9 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: client-create-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target:
+  name: client-ingress
+  namespace: shop
 spec:
   ingressClassName: nginx
   rules:

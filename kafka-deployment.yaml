@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-kafka
+  namespace: shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shop-kafka
+  template:
+    metadata:
+      labels:
+        app: shop-kafka
+    spec:
+      containers:
+        - name: shop-kafka
+          image: wurstmeister/kafka:latest
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "shop-zookeeper:2181"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://0.0.0.0:9092"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://shop-kafka:9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-kafka
+  namespace: shop
+spec:
+  ports:
+    - port: 9092
+      targetPort: 9092
+  selector:
+    app: shop-kafka

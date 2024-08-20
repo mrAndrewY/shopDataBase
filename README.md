@@ -24,9 +24,17 @@ Automate deployment and check the health of Kubernetes cluster components after 
 
     kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
 
+### Add namespace `shop`
+
+    kubectl apply -f shop_namespace.yml
+
+or 
+
+    kubectl create namespace shop 
+
 ### Create configMap for init db 
 
-    kubectl create configmap init-sql --from-file=init.sql
+    kubectl create configmap init-sql --from-file=init.sql -n shop
 
 Check configMap in any of following ways:
 
@@ -40,34 +48,67 @@ Check configMap in any of following ways:
 
 - Check start pod
   ```
-  kubectl get pods
+  kubectl get pods -n shop
   ```
 - Check file exist for init db
   ```
-  kubectl exec -it <pod-name> -- ls /docker-entrypoint-initdb.d
+  kubectl exec -it <pod-name> -n shop -- ls /docker-entrypoint-initdb.d
   ```
 - Read logs
   ```
-  kubectl logs <pod-name>
+  kubectl logs <pod-name> -n shop
   ```
 - Access to db
   ```
-  kubectl exec -it <pod-name> -- psql -U postgres -d postgres
+  kubectl exec -it <pod-name> -n shop -- psql -U postgres -d postgres
   ```
   and simple query
   ```
   SELECT * FROM shop.step;
+  ```
+- Access to db port-forwarding
+  ```
+  kubectl port-forward service/shop-database 5432:5432 -n shop
   ```
 
 ### Start ingress
 
     kubectl apply -f ingress.yaml
 
+### Deployment Zookeeper
+
+    kubectl apply -f zookeeper-deployment.yaml
+
+### Deployment Kafka
+
+    kubectl apply -f kafka-deployment.yaml
+
+- Create test topic
+  ```
+  kubectl exec -it <kafka-pod-name> -n shop -- /opt/kafka/bin/kafka-console-producer.sh --topic test-topic --bootstrap-server localhost:9092
+  ```
+- Test Kafka producer
+  ```
+  kubectl exec -it <kafka-pod-name> -n shop -- /opt/kafka/bin/kafka-console-producer.sh --topic test-topic --bootstrap-server localhost:9092
+  ```
+- Test Kafka consumer in another terminal
+  ```
+  kubectl exec -it <kafka-pod-name> -n shop -- /opt/kafka/bin/kafka-console-consumer.sh --topic test-topic --from-beginning --bootstrap-server localhost:9092
+  ```
+
+### Show all
+
+    kubectl get -n shop all -o wide
+
 ### Uninstall
 
 - Delete deployments
   ```
   kubectl delete deployments --all
+  ```
+- Delete services
+  ```
+  kubectl delete service --all
   ```
 - Delete ingress
   ```
